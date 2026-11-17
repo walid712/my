@@ -1,0 +1,168 @@
+{
+  "entities": {
+    "UserSummary": {
+      "title": "UserSummary",
+      "description": "User preferences and marketplace display profile (non-PII).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of the user." },
+        "displayName": { "type": "string", "description": "Public display name." },
+        "preferredLanguage": { "type": "string", "enum": ["ar", "en", "fr", "es"], "description": "Preferred app UI language code." },
+        "preferredCity": { "type": "string", "description": "Selected global city." },
+        "preferredCountry": { "type": "string", "description": "Selected country." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["userId", "displayName", "preferredLanguage", "createdAt", "updatedAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Strictly isolated PII for the user account.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of the user." },
+        "email": { "type": "string", "description": "User email address." },
+        "phone": { "type": "string", "description": "Contact phone number." },
+        "homeAddress": { "type": "string", "description": "Service visit address." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["userId", "createdAt", "updatedAt"]
+    },
+    "FavoriteProvider": {
+      "title": "FavoriteProvider",
+      "description": "Bookmarked trusted artisan or home service provider.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner UID." },
+        "providerId": { "type": "string", "description": "Referenced provider document ID." },
+        "providerName": { "type": "string", "description": "Cached provider name." },
+        "tradeCategory": { "type": "string", "description": "Provider trade category key." },
+        "city": { "type": "string", "description": "Provider city." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on bookmark." }
+      },
+      "required": ["userId", "providerId", "providerName", "tradeCategory", "city", "createdAt"]
+    },
+    "ServiceProvider": {
+      "title": "ServiceProvider",
+      "description": "Global trusted artisan or home service provider listing.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "description": "Creator/owner Firebase Auth UID." },
+        "businessName": { "type": "string", "description": "Provider or artisan studio name." },
+        "tradeCategory": {
+          "type": "string",
+          "enum": ["plumbing", "electrical", "carpentry", "cleaning", "hvac", "appliance", "painting", "zellige", "metalwork", "gardening", "moving", "smart_home"],
+          "description": "Trade or home service category."
+        },
+        "serviceKind": {
+          "type": "string",
+          "enum": ["artisan", "home_service"],
+          "description": "Distinguishes master artisans from home service specialists."
+        },
+        "bio": { "type": "string", "description": "Service description and craftsmanship details." },
+        "city": { "type": "string", "description": "City where service operates." },
+        "country": { "type": "string", "description": "Country where service operates." },
+        "continent": {
+          "type": "string",
+          "enum": ["africa", "europe", "asia", "north_america", "south_america", "oceania"],
+          "description": "Global continent identifier."
+        },
+        "latitude": { "type": "number", "description": "Map latitude." },
+        "longitude": { "type": "number", "description": "Map longitude." },
+        "hourlyRate": { "type": "number", "description": "Hourly rate in provider currency." },
+        "currency": { "type": "string", "description": "ISO currency code." },
+        "languages": { "type": "array", "description": "Languages spoken by the provider." },
+        "rating": { "type": "number", "description": "Baseline trust rating 0..5." },
+        "reviewCount": { "type": "integer", "description": "Baseline verified review count." },
+        "yearsExperience": { "type": "integer", "description": "Years of craftsmanship experience." },
+        "verificationTier": {
+          "type": "string",
+          "enum": ["id_verified", "master_artisan", "insured_pro"],
+          "description": "Verification badge level."
+        },
+        "availableToday": { "type": "boolean", "description": "Whether the provider accepts same-day requests." },
+        "published": { "type": "boolean", "description": "Whether listing is visible in the global marketplace." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": [
+        "ownerId", "businessName", "tradeCategory", "serviceKind", "bio",
+        "city", "country", "continent", "latitude", "longitude",
+        "hourlyRate", "currency", "languages", "rating", "reviewCount",
+        "yearsExperience", "verificationTier", "availableToday", "published",
+        "createdAt", "updatedAt"
+      ]
+    },
+    "ProviderReview": {
+      "title": "ProviderReview",
+      "description": "Verified customer review for a service provider.",
+      "type": "object",
+      "properties": {
+        "providerId": { "type": "string", "description": "Target provider ID." },
+        "authorId": { "type": "string", "description": "Reviewer UID." },
+        "authorName": { "type": "string", "description": "Reviewer display name." },
+        "rating": { "type": "integer", "description": "Star rating 1..5." },
+        "comment": { "type": "string", "description": "Review text." },
+        "language": { "type": "string", "enum": ["ar", "en", "fr", "es"], "description": "Language of review." },
+        "published": { "type": "boolean", "description": "Whether review is public." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": ["providerId", "authorId", "authorName", "rating", "comment", "language", "published", "createdAt", "updatedAt"]
+    },
+    "ServiceBooking": {
+      "title": "ServiceBooking",
+      "description": "Booked job request between customer and provider.",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string", "description": "Customer UID." },
+        "clientName": { "type": "string", "description": "Customer display name." },
+        "providerId": { "type": "string", "description": "Provider document ID." },
+        "providerName": { "type": "string", "description": "Provider business name." },
+        "providerOwnerId": { "type": "string", "description": "Provider owner UID." },
+        "tradeCategory": { "type": "string", "description": "Trade category." },
+        "serviceTitle": { "type": "string", "description": "Requested service title." },
+        "scheduledDate": { "type": "string", "description": "Requested visit date/time slot." },
+        "city": { "type": "string", "description": "Service city." },
+        "notes": { "type": "string", "description": "Optional job details." },
+        "estimatedPrice": { "type": "number", "description": "Estimated service cost." },
+        "currency": { "type": "string", "description": "ISO currency code." },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"], "description": "Booking lifecycle status." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": [
+        "clientId", "clientName", "providerId", "providerName", "providerOwnerId",
+        "tradeCategory", "serviceTitle", "scheduledDate", "city",
+        "estimatedPrice", "currency", "status", "createdAt", "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserSummary" },
+      "description": "User non-PII profile and language/region preferences."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Owner-only isolated PII document."
+    },
+    "/users/{userId}/favorites/{providerId}": {
+      "schema": { "$ref": "#/entities/FavoriteProvider" },
+      "description": "User bookmarked trusted providers."
+    },
+    "/providers/{providerId}": {
+      "schema": { "$ref": "#/entities/ServiceProvider" },
+      "description": "Global marketplace artisan and home service provider listings."
+    },
+    "/providers/{providerId}/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/ProviderReview" },
+      "description": "Verified reviews for a service provider."
+    },
+    "/bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/ServiceBooking" },
+      "description": "Service bookings between customers and providers."
+    }
+  }
+}

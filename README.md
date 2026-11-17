@@ -1,146 +1,69 @@
-# Mizan Maroc — Android natif (العربية / Français)
+# TrustCraft PWA — cross-platform web edition
 
-Application Android native construite avec Kotlin et Jetpack Compose. Application ID retenu pour cette version : `ma.mizanmaroc.app` (à conserver pour toutes les mises à jour futures). L'interface propose l'arabe (RTL) et le français (LTR), un choix de langue mémorisé, et suit la langue du téléphone au premier démarrage.
+This folder contains a responsive Progressive Web App edition of the supplied TrustCraft Android project. It is designed for Android phones, iPhones, tablets and desktop browsers.
 
-## Fonctionnalités présentes
+## Implemented in this web edition
 
-- Accueil et recherche des démarches.
-- Guides bilingues des procédures et listes de pièces à cocher, sauvegardées localement.
-- Modèles de lettres bilingues avec remplissage, copie et partage.
-- Répertoire des villes, repères administratifs et numéros utiles.
-- Liens directs vers les sources institutionnelles.
-- Thème clair/sombre/système et navigation adaptative téléphone/tablette.
+- Responsive mobile-first layout and Arabic RTL, English, French and Spanish language switching.
+- Firebase Google sign-in (requires Firebase Web app / OAuth domain setup).
+- Firestore provider discovery, text search and service/category/continent filters.
+- Provider profiles, public reviews, favourites and provider listing publication.
+- Booking requests, customer/provider booking lists and the original booking status flow.
+- Private profile contact information stored under `users/{uid}/private/info`.
+- OpenStreetMap / Leaflet provider map and browser geolocation.
+- PWA manifest, install icons, standalone display and service-worker app-shell caching.
+- Browser speech synthesis for reading provider descriptions.
 
-## Environnement
+## Important: connect the Firebase Web app before use
 
-| Élément | Version |
-|---|---:|
-| Android Gradle Plugin | 9.1.1 |
-| Gradle | 9.3.1 |
-| JDK pour Gradle | 17 minimum (17 recommandé) |
-| Android SDK | API 36 |
-| Build Tools | 36.0.0 |
-| minSdk | 24 (Android 7.0) |
-| targetSdk | 36 |
-| Bytecode Java/Kotlin | 17 |
+The supplied archive contains an Android Firebase registration, not a complete Web app registration. The Firebase project ID, public API key, database ID and Firestore rules were carried over, but a web app registration and its allowed domain must be configured.
 
-La matrice Android indique Gradle 9.3.1 et JDK 17 pour AGP 9.1.1. Consultez les liens officiels à la fin de ce fichier.
+1. Open the Firebase Console for project `gen-lang-client-0782344491`.
+2. Add/register a **Web app** in Project settings.
+3. Copy the Web app config and replace the `firebaseConfig` object near the top of `app.js` (especially `appId`; add it from the Web config).
+4. In Authentication → Sign-in method, enable Google.
+5. In Authentication → Settings → Authorized domains, add the domain where you will host this PWA (and `localhost` for local development).
+6. Confirm Firestore database `ai-studio-android-trustcra-af6ee663-7792-465c-abb8-86f9a5cbb138` is available and deploy the included `firestore.rules` to that database.
+7. Test Google sign-in, provider listing, favourites and bookings with separate customer and provider accounts before launch.
 
-## Générer APK et AAB sur Windows
+The Firebase API key in a web app config is a public client identifier, not a server secret. Keep Firestore rules restrictive and configure API restrictions / quotas in Google Cloud.
 
-1. Installer Android Studio récent, JDK 17 et Android SDK Platform 36.
-2. Dans SDK Manager, installer Android SDK Build-Tools 36.0.0 et Android SDK Platform-Tools.
-3. Décompresser le projet et ouvrir le dossier qui contient `settings.gradle.kts`.
-4. Attendre la synchronisation Gradle et accepter les licences SDK.
-5. Ouvrir PowerShell à la racine et lancer :
+## Run locally
 
-```powershell
-.\scripts\build-and-test.ps1
-```
+A PWA must be served from HTTPS or localhost; opening `index.html` directly with `file://` will not enable service workers or installation.
 
-Le script exécute les tests unitaires, lint, construit l'APK debug et le bundle AAB debug, puis copie les fichiers dans `artifacts/`. Au premier lancement, Gradle est téléchargé depuis le serveur officiel et son SHA-256 est vérifié.
-
-## Générer APK et AAB sur Linux/macOS
+With Python installed:
 
 ```bash
-chmod +x gradlew scripts/build-and-test.sh
-./scripts/build-and-test.sh
+python -m http.server 8080
 ```
 
-## Fichiers générés
+Then open `http://localhost:8080` in a browser. Firebase Auth may require `localhost` to be in Authorized domains.
 
-- `artifacts/mizan-maroc-debug.apk` : installable directement sur un téléphone pour les tests.
-- `artifacts/mizan-maroc-debug.aab` : bundle de test signé avec la clé debug ; ce n'est pas le fichier à publier sur Google Play.
+## Deploy
 
-Un AAB destiné à Google Play doit être signé avec une clé de publication privée. Pour produire les variantes release signées, configurer localement les variables suivantes (ne jamais committer le keystore ni ses mots de passe) :
+Upload the contents of this folder to any static host with HTTPS (for example Firebase Hosting, Cloudflare Pages, Netlify or another HTTPS static host). The `manifest.webmanifest`, `sw.js`, `index.html`, `app.js`, `styles.css` and `icons/` directory must remain at the same site root. Configure SPA/static fallback to `index.html` if your host requires it.
 
-- `KEYSTORE_PATH` : chemin du keystore.
-- `STORE_PASSWORD` : mot de passe du keystore.
-- `KEY_PASSWORD` : mot de passe de la clé.
-- `KEY_ALIAS` : alias (par défaut `upload`).
+### Install on Android
 
-Puis relancer le même script. Il produira également `artifacts/mizan-maroc-release.apk` et `artifacts/mizan-maroc-release.aab`. Conservez une sauvegarde sécurisée du keystore : sans lui, les mises à jour signées avec cette clé ne pourront pas être publiées.
+Open the HTTPS site in Chrome, then choose **Install app** / **Add to Home screen** from the browser menu (or use the in-page install prompt when available).
 
-## Test sur un vrai téléphone Android
+### Install on iPhone
 
-1. Activer les options développeur et le débogage USB.
-2. Brancher le téléphone et accepter l'empreinte RSA.
-3. Vérifier `adb devices -l` et que le téléphone affiche l'état `device`.
-4. Définir `MIZAN_RUN_DEVICE_TESTS=1`, puis relancer le script.
+Open the HTTPS site in Safari → Share → **Add to Home Screen**. iOS does not expose the same JavaScript install prompt as Chromium browsers.
 
-PowerShell :
+## Current parity limits — read before production
 
-```powershell
-$env:MIZAN_RUN_DEVICE_TESTS='1'
-.\scripts\build-and-test.ps1
-```
+This is a functional web port of the main marketplace workflows, not a byte-for-byte or feature-complete replacement of the native Android app. The supplied Android project contains additional native integrations that need separate web configuration and real-device testing:
 
-Linux/macOS :
+- The original Gemini Search grounding, Gemini Maps grounding and Gemini TTS pipeline are not enabled in this web build. The Concierge panel currently explains the limitation and provides basic planning guidance; provider-description reading uses the browser's built-in speech synthesis.
+- The map uses OpenStreetMap/Leaflet and approximate provider coordinates, rather than the native Google Maps SDK and Gemini Maps grounding.
+- Firebase Phone OTP was not implemented in the supplied Android app either.
+- Offline support caches the app shell only. Authentication, Firestore data, maps and external services still require a connection.
+- The PWA has not been deployed to a public HTTPS domain or tested on physical Android/iPhone devices from this environment.
 
-```bash
-MIZAN_RUN_DEVICE_TESTS=1 ./scripts/build-and-test.sh
-```
+The original Android source project is included separately in `original-android/` so the existing native app is preserved. Do not remove the original Android Firestore rules or replace them with permissive rules.
 
-Le script installe l'APK debug et exécute les tests UI instrumentés. Aucun test ne doit déclencher un appel d'urgence réel.
+## Source project
 
-## Données personnelles et prudence juridique
-
-Les brouillons des lettres sont gardés en mémoire pendant l'utilisation et ne sont pas synchronisés avec un serveur. Les préférences et cases à cocher sont stockées localement avec DataStore. La sauvegarde Android automatique est désactivée dans cette version afin de limiter la sortie de données de l’appareil. Les liens web s'ouvrent dans une application externe. Les fiches juridiques sont des guides indicatifs : chaque tarif, délai, document et numéro doit être revérifié auprès de l'administration compétente avant publication. Un lien institutionnel ne prouve pas automatiquement tous les détails de la fiche.
-
-## Documentation officielle
-
-- AGP 9.1.1 et compatibilité : https://developer.android.com/build/releases/agp-9-1-0-release-notes
-- Matrice AGP / Gradle : https://developer.android.com/build/releases/about-agp
-- JDK dans Android builds : https://developer.android.com/build/jdks
-- Localisation Android : https://developer.android.com/guide/topics/resources/localization
-- Construire APK/AAB : https://developer.android.com/build/building-cmdline
-- Tester un App Bundle : https://developer.android.com/guide/app-bundle/test
-
----
-
-# ميزان المغرب — تعليمات مختصرة بالعربية
-
-يدعم التطبيق العربية والفرنسية. عند أول تشغيل يحاول احترام لغة الهاتف (العربية أو الفرنسية)، ويمكن تغيير اللغة من داخل التطبيق، ويُحفظ اختيارك محلياً.
-
-## بناء APK وAAB
-
-على Windows افتح PowerShell في مجلد المشروع وشغّل:
-
-```powershell
-.\scripts\build-and-test.ps1
-```
-
-على Linux/macOS:
-
-```bash
-./scripts/build-and-test.sh
-```
-
-بعد نجاح البناء ستجد: `artifacts/mizan-maroc-debug.apk` للتثبيت المباشر، و`artifacts/mizan-maroc-debug.aab` لحزمة الاختبار. نسخة Debug ليست نسخة نشر Google Play. للنشر يجب إعداد مفتاح توقيع Release خاص وآمن عبر متغيرات البيئة الموضحة أعلاه.
-
-## تجربة الهاتف الحقيقي
-
-فعّل USB debugging، وصل الهاتف بالحاسوب، وافق على رسالة RSA، ثم شغّل السكريبت مع `MIZAN_RUN_DEVICE_TESTS=1`. لا تنفّذ أي اتصال حقيقي بأرقام الطوارئ أثناء الاختبار.
-
-**تنبيه:** التطبيق دليل إرشادي وليس استشارة قانونية. يجب التأكد من الرسوم والآجال والوثائق وأرقام الهاتف من الجهة الرسمية قبل الاعتماد عليها.
-
-## CI GitHub Actions
-
-Le workflow `.github/workflows/android.yml` exécute `lintDebug`, `testDebugUnitTest`, `assembleDebug` et `bundleDebug`, publie les deux artefacts et exécute les tests instrumentés sur un émulateur Android. Les builds Release signés sont réservés aux tags `v*` et nécessitent les secrets GitHub `ANDROID_KEYSTORE_BASE64`, `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_PASSWORD`, `ANDROID_KEY_ALIAS`.
-
-**Gradle Wrapper :** le dépôt inclut les scripts `gradlew`/`gradlew.bat`, `gradle-wrapper.properties`, le SHA-256 officiel de la distribution Gradle et le SHA-256 officiel attendu du Wrapper JAR. Le binaire `gradle-wrapper.jar` ne peut pas être incorporé depuis cet environnement hors-ligne. Le workflow CI génère le Wrapper depuis Gradle 9.3.1 officiel, puis vérifie son JAR avec `gradle/actions/wrapper-validation@v4`. Le script de build local génère automatiquement le Wrapper manquant après avoir amorcé Gradle 9.3.1, puis compare le JAR au SHA-256 officiel dans `gradle/wrapper/gradle-wrapper.jar.sha256`.
-
-## Revue juridique et confidentialité
-
-Voir `docs/LEGAL_REVIEW_REGISTER.md`, `docs/PRIVACY_POLICY_AR_FR.md` et `docs/TERMS_OF_USE_AR_FR.md`. Les champs de date de vérification indépendante restent vides tant que chaque tarif, délai et pièce n'a pas été contrôlé individuellement. Le nom légal de l'éditeur et son contact doivent être fournis avant publication publique.
-
-### Clé de publication Android
-
-Créez votre clé de téléversement localement et gardez le fichier `.jks` hors du dépôt :
-
-```bash
-keytool -genkeypair -v -keystore mizan-upload.jks -keyalg RSA -keysize 4096 -validity 10000 -alias upload
-base64 -w 0 mizan-upload.jks > mizan-upload.jks.base64
-```
-
-Dans GitHub Settings → Secrets and variables → Actions, ajoutez `ANDROID_KEYSTORE_BASE64`, `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_PASSWORD` et `ANDROID_KEY_ALIAS`. Sur macOS, utilisez `base64 < mizan-upload.jks | tr -d '\n'`. Ne transmettez jamais la clé ou les mots de passe dans un chat, un commit ou un artefact public. Activez Play App Signing dans Play Console ; le keystore ci-dessus est la clé d’upload.
+`original-android/` is the original uploaded Android project, retained for reference and future parity work. The PWA uses the same Firestore collection/document structure and includes the project's `firestore.rules`.

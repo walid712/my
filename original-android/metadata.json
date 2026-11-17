@@ -1,0 +1,6 @@
+{
+  "name": "TrustCraft",
+  "description": "Global marketplace for trusted local artisans and home services supporting Arabic, English, French, and Spanish, with Google Maps discovery, AI search grounding, and voice read-aloud.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
