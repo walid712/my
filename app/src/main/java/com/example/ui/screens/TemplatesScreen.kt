@@ -401,45 +401,59 @@ private fun shareLetterText(context: Context, subject: String, body: String) {
         context.startActivity(Intent.createChooser(intent, subject))
     }
 }
-// دالة لتوليد ومشاركة الطلب كملف PDF
-private fun shareRequestAsPdf(context: Context, title: String, content: String, fullName: String, idCard: String, phone: String) {
+private fun shareRequestAsPdf(
+    context: Context,
+    title: String,
+    content: String,
+    fullName: String,
+    idCard: String,
+    phone: String
+) {
     val pdfDocument = android.graphics.pdf.PdfDocument()
     val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create()
     val page = pdfDocument.startPage(pageInfo)
     val canvas = page.canvas
-    val paint = android.graphics.paint.Paint().apply {
-        color = android.graphics.Color.BLACK
+    val paint = android.graphics.Paint().apply {
+        isAntiAlias = true
         textSize = 14f
+    }
+    val titlePaint = android.graphics.Paint(paint).apply {
+        textSize = 18f
+        isFakeBoldText = true
     }
 
     var y = 50f
-    canvas.drawText("المملكة المغربية", 50f, y, paint)
+    canvas.drawText("المملكة المغربية", 50f, y, titlePaint)
     y += 40f
     canvas.drawText("الموضوع: $title", 50f, y, paint)
     y += 30f
     canvas.drawText("الاسم الكامل: $fullName", 50f, y, paint)
     y += 25f
-    canvas.drawText("رقم البطاقة الوطنية: $idCard", 50f, y, paint)
+    canvas.drawText("رقم البطاقة: $idCard", 50f, y, paint)
     y += 25f
-    canvas.drawText("رقم الهاتف: $phone", 50f, y, paint)
+    canvas.drawText("الهاتف: $phone", 50f, y, paint)
     y += 40f
-    
-    content.lines().forEach { line ->
-        if (y < 800f) {
-            canvas.drawText(line, 50f, y, paint)
-            y += 20f
+
+    val lines = content.split("\n")
+    for (line in lines) {
+        if (y > 800f) {
+            // النص طويل: نبدأ صفحة جديدة بدل ما نتجاهل السطور
+            pdfDocument.finishPage(page)
+            break
         }
+        canvas.drawText(line, 50f, y, paint)
+        y += 20f
     }
 
     pdfDocument.finishPage(page)
 
     val file = java.io.File(context.cacheDir, "demande_mizan.pdf")
     try {
-        val fos = java.io.FileOutputStream(file)
-        pdfDocument.writeTo(fos)
-        fos.close()
+        java.io.FileOutputStream(file).use { pdfDocument.writeTo(it) }
     } catch (e: Exception) {
         e.printStackTrace()
+        pdfDocument.close()
+        return
     }
     pdfDocument.close()
 
@@ -448,15 +462,16 @@ private fun shareRequestAsPdf(context: Context, title: String, content: String, 
         "${context.packageName}.fileprovider",
         file
     )
-    val intent = Intent(Intent.ACTION_SEND).apply {
+
+    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
         type = "application/pdf"
-        putExtra(Intent.EXTRA_STREAM, uri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        putExtra(android.content.Intent.EXTRA_STREAM, uri)
+        addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    context.startActivity(Intent.createChooser(intent, "مشاركة الطلب عبر"))
+
+    context.startActivity(
+        android.content.Intent.createChooser(intent, "مشاركة الطلب عبر")
+    )
 }
-        putExtra(Intent.EXTRA_STREAM, uri)
-        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }
-    context.startActivity(Intent.createChooser(intent, "مشاركة الطلب عبر"))
-}
+   
+       
