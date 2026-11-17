@@ -1,0 +1,11 @@
+{
+  "name": "Mizan Maroc",
+  "applicationId": "ma.mizanmaroc.app",
+  "namespace": "com.example",
+  "versionName": "1.1.0",
+  "versionCode": 2,
+  "languages": ["ar", "fr"],
+  "artifacts": ["APK", "AAB"],
+  "ci": ["lintDebug", "testDebugUnitTest", "connectedDebugAndroidTest", "assembleDebug", "bundleDebug"],
+  "releaseSigning": "GitHub Actions secrets; no private key committed"
+}
